@@ -33,9 +33,13 @@ jobs:
           # Android SDK command-line tools-ni yuklab olish
           wget https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip
           unzip commandlinetools-linux-11076708_latest.zip -d android-sdk
-          # Papka strukturasi yaratish va fayllarni joylashtirish
-          mkdir -p android-sdk/cmdline-tools
-          mv android-sdk/cmdline-tools/*/* android-sdk/cmdline-tools/latest 2>/dev/null || mv android-sdk/cmdline-tools/* android-sdk/cmdline-tools/latest
+          # Papka strukturasi moslashuvi
+          mkdir -p android-sdk/cmdline-tools/latest
+          if [ -d "android-sdk/cmdline-tools/cmdline-tools" ]; then
+            mv android-sdk/cmdline-tools/cmdline-tools/* android-sdk/cmdline-tools/latest/
+          else
+            mv android-sdk/cmdline-tools/* android-sdk/cmdline-tools/latest/
+          fi
           # Environment o'zgaruvchilarini sozlash
           export ANDROID_HOME=$PWD/android-sdk
           export PATH=$PATH:$ANDROID_HOME/cmdline-tools/latest/bin
