@@ -30,11 +30,26 @@ jobs:
 
       - name: Install Android SDK
         run: |
-          sudo apt install -y android-sdk
-          sdkmanager --licenses
-          sdkmanager "platform-tools" "platforms;android-33" "build-tools;33.0.2"
+          # Android SDK-ni qo'lga o'rnatish
+          wget https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip
+          unzip commandlinetools-linux-11076708_latest.zip -d android-sdk
+          mkdir -p android-sdk/cmdline-tools
+          mv android-sdk/cmdline-tools/* android-sdk/cmdline-tools/latest
+          export ANDROID_HOME=$PWD/android-sdk
+          export PATH=$PATH:$ANDROID_HOME/cmdline-tools/latest/bin
+          # SDK komponentlarini o'rnatish
+          yes | sdkmanager --sdk_root=$ANDROID_HOME "platform-tools" "platforms;android-33" "build-tools;33.0.2"
+          # Litsenziyalarni qabul qilish
+          yes | sdkmanager --sdk_root=$ANDROID_HOME --licenses
 
       - name: Build with Buildozer
+        run: buildozer -v android debug
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: OnlineChat-APK
+          path: bin/*.apk      - name: Build with Buildozer
         run: buildozer -v android debug
 
       - name: Upload APK
