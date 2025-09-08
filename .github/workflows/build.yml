@@ -10,8 +10,12 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    env:
+      ANDROID_HOME: ${{ github.workspace }}/android-sdk
+      PATH: ${{ github.workspace }}/android-sdk/cmdline-tools/latest/bin:${{ github.workspace }}/android-sdk/platform-tools:${{ github.workspace }}/android-sdk/emulator:$PATH
+
     steps:
-      - name: Checkout
+      - name: Checkout source code
         uses: actions/checkout@v4
 
       - name: Setup Python
@@ -30,28 +34,21 @@ jobs:
 
       - name: Install Android SDK
         run: |
-          # Android SDK command-line tools-ni yuklab olish
           wget https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip
           unzip commandlinetools-linux-11076708_latest.zip -d android-sdk
-          # Papka strukturasi moslashuvi
           mkdir -p android-sdk/cmdline-tools/latest
           if [ -d "android-sdk/cmdline-tools/cmdline-tools" ]; then
             mv android-sdk/cmdline-tools/cmdline-tools/* android-sdk/cmdline-tools/latest/
           else
             mv android-sdk/cmdline-tools/* android-sdk/cmdline-tools/latest/
           fi
-          # Environment o'zgaruvchilarini sozlash
-          export ANDROID_HOME=$PWD/android-sdk
-          export PATH=$PATH:$ANDROID_HOME/cmdline-tools/latest/bin
-          # SDK komponentlarini o'rnatish
           yes | sdkmanager --sdk_root=$ANDROID_HOME "platform-tools" "platforms;android-33" "build-tools;33.0.2"
-          # Litsenziyalarni qabul qilish
           yes | sdkmanager --sdk_root=$ANDROID_HOME --licenses
 
-      - name: Build with Buildozer
-        run: buildozer -v android debug
+      - name: Build APK with Buildozer
+        run: buildozer android debug
 
-      - name: Upload APK
+      - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
           name: OnlineChat-APK
